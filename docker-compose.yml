@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  frpc:
+    image: privaterouterllc/frpc
+    environment:
+      - FRPC_TOKEN=INSERT
+      - FRPC_IP=INSERT
+    # volumes:
+    #   - ./frpc:/frpc

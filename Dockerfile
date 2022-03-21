@@ -17,6 +17,7 @@ RUN case "$(uname -m)" in \
     mkdir -p /etc/frp; \
     cp frp_${FRP_VERSION}_linux_${ARCH}/frpc.ini /etc/frp; \
     rm -rf frp_${FRP_VERSION}_linux_${ARCH}.tar.gz frp_${FRP_VERSION}_linux_${ARCH}; \
-    chmod +x /entrypoint.sh
+    chmod +x /entrypoint.sh; \
+    mkdir /frpc
 
 ENTRYPOINT /entrypoint.sh

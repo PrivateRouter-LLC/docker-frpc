@@ -4,7 +4,12 @@ services:
   frpc:
     image: privaterouterllc/frpc
     environment:
-      - FRPC_TOKEN=INSERT
-      - FRPC_IP=INSERT
-    # volumes:
-    #   - ./frpc:/frpc
+      # These are required to run
+      FRPC_TOKEN: "${FRPC_TOKEN?Missing FRPC_TOKEN}"
+      FRPC_IP: "${FRPC_IP?Missing FRPC_IP}"
+      # This is optional and allows you to dymaically load in configs seperated by a space
+      # Format is service_name,service_protocol,service_port
+      FRPC_SERVICES: "http,tcp,80 https,tcp,443"
+    volumes:
+      # This is optional, you can put custom ini files here for frpc to load
+      - ./frpc:/frpc

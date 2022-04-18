@@ -1,15 +1,20 @@
-version: "3.8"
+version: "3"
 
 services:
   frpc:
     image: privaterouterllc/frpc
+    restart: unless-stopped
+    network_mode: host
     environment:
       # These are required to run
       FRPC_TOKEN: "${FRPC_TOKEN?Missing FRPC_TOKEN}"
       FRPC_IP: "${FRPC_IP?Missing FRPC_IP}"
-      # This is optional and allows you to dymaically load in configs seperated by a space
-      # Format is service_name,service_protocol,service_port
-      FRPC_SERVICES: "http,tcp,80 https,tcp,443"
+      FRPC_PORT: "7000" # This is optional
+      # Required Minimum Format: service_name,service_protocol,service_port
+      # Optional Format: service_name,service_protocol,local_service_port,remote_service_port
+      # Optional Format: service_name,service_protocol,local_service_port,remote_service_port,local_service_ip
+      # Each service must be separated by a space
+      FRPC_SERVICES: "http,tcp,80 https,tcp,443,443 home_assistant,tcp,8123,8123,192.168.1.10"
     volumes:
       # This is optional, you can put custom ini files here for frpc to load
-      - ./frpc:/frpc
+      - "./frpc:/frpc"

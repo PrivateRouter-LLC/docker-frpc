@@ -10,11 +10,20 @@
 if [ ! -z "${FRPC_SERVICES}" ]; then
     set -- $(echo "${FRPC_SERVICES}")
     for service in "$@"; do
-        SERIVE_NAME=`echo $service | cut -d',' -f1`
+        SERVICE_NAME=`echo $service | cut -d',' -f1`
         SERVICE_PROTOCOL=`echo $service | cut -d',' -f2`
-        SERVICE_PORT=`echo $service | cut -d',' -f3`
-        if [ ! -z $SERIVE_NAME ] && [ ! -z $SERVICE_PROTOCOL ] && [ ! -z $SERVICE_PORT ]; then
-            EXTRA_FRPC=$(printf "${EXTRA_FRPC}\n[${SERIVE_NAME}]\ntype = ${SERVICE_PROTOCOL}\nlocal_ip = 127.0.0.1\nlocal_port = ${SERVICE_PORT}\nremote_port= ${SERVICE_PORT}\n ")
+        SERVICE_PORT_LOCAL=`echo $service | cut -d',' -f3`
+        SERVICE_PORT_REMOTE=`echo $service | cut -d',' -f4`
+        SERVICE_IP_LOCAL=`echo $service | cut -d',' -f5`
+        # Default with service,protocol,local_port
+        if [ ! -z $SERVICE_NAME ] && [ ! -z $SERVICE_PROTOCOL ] && [ ! -z $SERVICE_PORT_LOCAL ] && [ -z $SERVICE_PORT_REMOTE ] && [ -z $SERVICE_IP_LOCAL ]; then
+            EXTRA_FRPC=$(printf "${EXTRA_FRPC}\n[${SERVICE_NAME}]\ntype = ${SERVICE_PROTOCOL}\nlocal_ip = 127.0.0.1\nlocal_port = ${SERVICE_PORT_LOCAL}\nremote_port= ${SERVICE_PORT_LOCAL}\n ")
+        # Next service,protocol,local_port,remote_port
+        elif [ ! -z $SERVICE_NAME ] && [ ! -z $SERVICE_PROTOCOL ] && [ ! -z $SERVICE_PORT_LOCAL ] && [ ! -z $SERVICE_PORT_REMOTE ] && [ -z $SERVICE_IP_LOCAL ]; then
+            EXTRA_FRPC=$(printf "${EXTRA_FRPC}\n[${SERVICE_NAME}]\ntype = ${SERVICE_PROTOCOL}\nlocal_ip = 127.0.0.1\nlocal_port = ${SERVICE_PORT_LOCAL}\nremote_port= ${SERVICE_PORT_REMOTE}\n ")
+        # Next service,protocol,local_port,remote_port,local_ip
+        elif [ ! -z $SERVICE_NAME ] && [ ! -z $SERVICE_PROTOCOL ] && [ ! -z $SERVICE_PORT_LOCAL ] && [ ! -z $SERVICE_PORT_REMOTE ] && [ ! -z $SERVICE_IP_LOCAL ]; then
+            EXTRA_FRPC=$(printf "${EXTRA_FRPC}\n[${SERVICE_NAME}]\ntype = ${SERVICE_PROTOCOL}\nlocal_ip = ${SERVICE_IP_LOCAL}\nlocal_port = ${SERVICE_PORT_LOCAL}\nremote_port= ${SERVICE_PORT_REMOTE}\n ")
         fi
     done
 fi
@@ -23,7 +32,7 @@ fi
 cat << EOF > /frpc.ini
 [common]
 server_addr = ${FRPC_IP}
-server_port = 7000
+server_port = ${FRPC_PORT:-7000}
 token = ${FRPC_TOKEN}
 includes = /frpc/*.ini
 ${EXTRA_FRPC}
